@@ -149,7 +149,6 @@ make.keyword.df <- function(unit.names, full.names = NULL, new.labels = FALSE, k
         data$longlab <- factor(data$longlab, levels = lab.lookup$new[ind], ordered = TRUE)
     }
 
-    ## FIXME
     data.total <- proc.unit("Total", keyword = keyword, subdir = subdir, ...)
     colnames(data.total) <- c("year", "total.articles", paste0("total.", keyword),
         "total.rate", "total")
@@ -363,7 +362,6 @@ data.nuance <- make.keyword.df(soc.journals, full.names = soc.names, new.labels 
 
 data.soph <- make.keyword.df(soc.journals, full.names = soc.names, new.labels = TRUE,
     subdir = "terms", keyword = "sophisticated")
-
 
 data.subtle <- make.keyword.df(soc.journals, full.names = soc.names, new.labels = TRUE,
     subdir = "terms", keyword = "subtle")
