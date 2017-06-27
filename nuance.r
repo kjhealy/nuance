@@ -265,6 +265,7 @@ print(p1)
 credit("Kieran Healy. Data: JSTOR. Base rate is percent mentions across all research articles in the JSTOR corpus.")
 dev.off()
 
+ggsave("figures/nuance-rate-by-journal-relative-facet.png", plot = p1, width = 10, height = 5)
 
 ###--------------------------------------------------
 ### Soc Journals
@@ -291,6 +292,7 @@ print(p1)
 credit("Kieran Healy. Data: JSTOR. Base rate is percent mentions across all research articles in the JSTOR corpus.")
 dev.off()
 
+ggsave("figures/nuance-rate-by-soc-journal-relative-facet.png", plot = p1, width = 8, height = 3)
 
 
 
@@ -322,7 +324,7 @@ print(p1)
 credit("Kieran Healy. Data: JSTOR. Base rate is percent mentions across all research articles in the JSTOR corpus.")
 dev.off()
 
-
+ggsave("figures/nuance-rate-by-allsoc-journal-relative-facet.png", plot = p1, width = 12, height = 6)
 
 
 
