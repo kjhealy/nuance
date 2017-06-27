@@ -64,14 +64,10 @@ proc.unit <- function(unit = "Sociology", subdir = "terms", keyword = "nuance", 
         return(x)
     }
 
-    message("keyword arg is ", keyword)
-    message("subdir arg is ", subdir)
-
-
     fn.articles <- file.path("data", "article-counts", paste0("ac-", unit, ".csv"))
     fn.term <- file.path("data", subdir, paste0(keyword, "-", unit, ".csv"))
 
-    message("Term file path is ", fn.term)
+    message("Term file path is ", fn.term, "; keyword is ", keyword)
 
     tmp1 <- read.csv(fn.articles)
     colnames(tmp1) <- c("year", "articles")
@@ -153,7 +149,8 @@ make.keyword.df <- function(unit.names, full.names = NULL, new.labels = FALSE, k
         data$longlab <- factor(data$longlab, levels = lab.lookup$new[ind], ordered = TRUE)
     }
 
-    data.total <- proc.unit("Total")
+    ## FIXME
+    data.total <- proc.unit("Total", keyword = keyword, subdir = subdir, ...)
     colnames(data.total) <- c("year", "total.articles", paste0("total.", keyword),
         "total.rate", "total")
 
@@ -259,7 +256,7 @@ p1 <- p + geom_hline(yintercept = 0, color = "gray20") + geom_point(size = 0.5, 
     labs(x = "", y = "Percentage Point Difference from Base Rate") + theme(axis.title.y = element_text(size = rel(0.6)),
     axis.text.y = element_text(size = rel(0.6)), axis.title.x = element_text(size = rel(0.6)),
     axis.text.x = element_text(size = rel(0.6)), plot.title = element_text(size = rel(0.8)),
-    strip.text.x = element_text(size = rel(0.8))) + ggtitle("Nuance in Eight Social Science Journals, 1900-2013")
+    strip.text.x = element_text(size = rel(0.8))) + ggtitle("Nuance in Selected Social Science Journals, 1900-2013")
 
 print(p1)
 credit("Kieran Healy. Data: JSTOR. Base rate is percent mentions across all research articles in the JSTOR corpus.")
@@ -387,7 +384,6 @@ p + geom_jitter() + geom_smooth(se = FALSE) + scale_y_continuous(labels = scales
 credit("Data: JSTOR.")
 dev.off()
 
-
 p <- ggplot(subset(data.subtle, year < 2013), aes(x = year, y = rate, color = longlab,
     fill = longlab, shape = longlab))
 
@@ -399,8 +395,6 @@ p + geom_jitter() + geom_smooth(se = FALSE) + scale_y_continuous(labels = scales
 credit("Data: JSTOR.")
 dev.off()
 
-
-
 p <- ggplot(subset(data.subtlety, year < 2013), aes(x = year, y = rate, color = longlab,
     fill = longlab, shape = longlab))
 
@@ -411,8 +405,6 @@ p + geom_jitter() + geom_smooth(se = FALSE) + scale_y_continuous(labels = scales
         color = "Journal") + scale_color_manual(values = my.colors("bly")) + ggtitle("'Subtlety'")
 credit("Data: JSTOR.")
 dev.off()
-
-
 
 p <- ggplot(subset(data.nuance, year < 2013), aes(x = year, y = rate, color = longlab,
     fill = longlab, shape = longlab))
