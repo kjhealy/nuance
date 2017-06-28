@@ -28,6 +28,9 @@ jl.names <- c("Amer. Economic Rev.", "Amer. Sociological Rev.", "Amer. Jl of Pol
     "Amer. Political Science Rev.", "Amer. Jl Sociology", "Demography", "Jl of Politics",
     "Jl of Political Economy", "Quarterly Jl of Economics", "Social Forces")
 
+soc.journals <- c("ASR", "AJS", "SF", "ST", "TS")
+
+soc.names <- c("ASR", "AJS", "Social Forces", "Sociological Theory", "Theory and Society")
 
 
 ###--------------------------------------------------
@@ -273,9 +276,6 @@ ggsave("figures/nuance-rate-by-journal-relative-facet.png", plot = p1, width = 1
 ###--------------------------------------------------
 ### Soc Journals
 ###--------------------------------------------------
-
-soc.journals <- c("ASR", "AJS", "SF", "ST", "TS")
-soc.names <- c("ASR", "AJS", "Social Forces", "Sociological Theory", "Theory and Society")
 
 data.socjournals <- make.keyword.df(soc.journals, full.names = soc.names, subdir = "terms",
     new.labels = TRUE)
