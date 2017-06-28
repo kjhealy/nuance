@@ -457,7 +457,7 @@ p1 <- p + geom_hline(yintercept = 0, color = "gray20") +
     theme(legend.position = "right") +
     labs(x = "Year", y = "Percentage Points Difference from Base Rate", fill = "Discipline",
         color = "Discipline") + xlim(1860, 2020) + ylim(-50, 500) + guides(fill = FALSE, color = FALSE) +
-    ggtitle("Relative Incidents of 'Theory' Across the Disciplines, 1860-2013")
+    ggtitle("Relative Incidence of 'Theory' Across the Disciplines, 1860-2013")
 
 ## Turn off the clipping so the labels are legible
 gt <- ggplot_gtable(ggplot_build(p1))
@@ -467,8 +467,8 @@ credit("")
 dev.off()
 
 
-pdf(file = "figures/theory-rate-by-discipline-relative-excl-psych.pdf", width = 9.5,
-    height = 6, pointsize = 10)
+pdf(file = "figures/theory-rate-by-discipline-relative-excl-psych.pdf", width = 9,
+    height = 10, pointsize = 10)
 
 ## Get average rate at the tail end, for better label placement
 lab.df <- data.theory %>% filter(year > 2002 & unit %nin% "Psychology")
@@ -488,11 +488,13 @@ p1 <- p + geom_hline(yintercept = 0, color = "gray20") +
     theme(legend.position = "right") +
     labs(x = "Year", y = "Percentage Points Difference from Base Rate", fill = "Discipline",
         color = "Discipline") + xlim(1860, 2020) + guides(fill = FALSE, color = FALSE) +
-    ggtitle("Relative Incidents of 'Theory' Across the Disciplines, 1860-2013")
+    ggtitle("Relative Incidence of 'Theory' Across the Disciplines, 1860-2013")
+
+print(p1)
 
 ## Turn off the clipping so the labels are legible
-gt <- ggplot_gtable(ggplot_build(p1))
-gt$layout$clip[gt$layout$name == "panel"] <- "off"
-grid.draw(gt)
-credit("Kieran Healy. Data: JSTOR. Base rate is percent mentions across all research articles in the JSTOR corpus.")
+## gt <- ggplot_gtable(ggplot_build(p1))
+## gt$layout$clip[gt$layout$name == "panel"] <- "off"
+## grid.draw(gt)
+credit("Base rate is percent mentions across all research articles in the JSTOR corpus.")
 dev.off()
