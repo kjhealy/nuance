@@ -13,6 +13,23 @@ theme_set(theme_minimal())
 ## Make a 'figures' subdirectory if one doesn't exist
 ifelse(!dir.exists(file.path("figures")), dir.create(file.path("figures")), FALSE)
 
+
+###--------------------------------------------------
+### Unit names
+###--------------------------------------------------
+
+fields <- list("Sociology", "Economics", "Politics", "Anthropology", "History", "Philosophy",
+    "Psychology")
+
+journals <- c("AER", "ASR", "AJPS", "APSR", "AJS", "Demography", "JOP", "JPE", "QJE",
+    "SF")
+
+jl.names <- c("Amer. Economic Rev.", "Amer. Sociological Rev.", "Amer. Jl of Political Science",
+    "Amer. Political Science Rev.", "Amer. Jl Sociology", "Demography", "Jl of Politics",
+    "Jl of Political Economy", "Quarterly Jl of Economics", "Social Forces")
+
+
+
 ###--------------------------------------------------
 ### Functions
 ###--------------------------------------------------
@@ -166,9 +183,6 @@ make.keyword.df <- function(unit.names, full.names = NULL, new.labels = FALSE, k
 ### Nuance across the disciplines
 ###--------------------------------------------------
 
-fields <- list("Sociology", "Economics", "Politics", "Anthropology", "History", "Philosophy",
-    "Psychology")
-
 data.fields <- make.keyword.df(unit.names = fields, subdir = "terms")
 
 ### Basic field-level rates Too many fields for the shape aesthetic
@@ -234,13 +248,6 @@ dev.off()
 ###--------------------------------------------------
 ### Multiple journals
 ###--------------------------------------------------
-
-journals <- c("AER", "ASR", "AJPS", "APSR", "AJS", "Demography", "JOP", "JPE", "QJE",
-    "SF")
-
-jl.names <- c("Amer. Economic Rev.", "Amer. Sociological Rev.", "Amer. Jl of Political Science",
-    "Amer. Political Science Rev.", "Amer. Jl Sociology", "Demography", "Jl of Politics",
-    "Jl of Political Economy", "Quarterly Jl of Economics", "Social Forces")
 
 data.journals <- make.keyword.df(unit.names = journals, full.names = jl.names, subdir = "terms",
     new.labels = TRUE)
@@ -369,6 +376,9 @@ data.subtle <- make.keyword.df(soc.journals, full.names = soc.names, new.labels 
 data.subtlety <- make.keyword.df(soc.journals, full.names = soc.names, new.labels = TRUE,
     subdir = "terms", keyword = "subtlety")
 
+## Across the disciplines
+data.theory <- make.keyword.df(fields, subdir = "terms", keyword = "theory")
+
 
 
 p <- ggplot(subset(data.soph, year < 2013), aes(x = year, y = rate, color = longlab,
@@ -413,4 +423,76 @@ p + geom_jitter() + geom_smooth(se = FALSE) + scale_y_continuous(labels = scales
     labs(x = "", y = "Articles mentioning 'Nuance' or 'Nuanced'", fill = "Journal",
         shape = "Journal", color = "Journal") + scale_color_manual(values = my.colors("bly"))
 credit("Data: JSTOR.")
+dev.off()
+
+
+
+
+pdf(file = "figures/nuance-rate-by-discipline.pdf", width = 9, height = 8)
+p <- ggplot(subset(data.theory, year < 2014 & year > 1860), aes(x = year, y = rate,
+    color = unit, fill = unit))
+
+p + geom_point(alpha = 0.7) + geom_smooth(se = FALSE) + scale_y_continuous(labels = scales::percent) +
+    theme(legend.position = "right") + labs(x = "Year", y = "Journal Articles mentioning 'Theory'",
+    fill = "Discipline", color = "Discipline") + ggtitle("Rates of Nuance Across the Disciplines, 1860-2013")
+credit("Data: JSTOR.")
+dev.off()
+
+
+library(ggrepel)
+
+pdf(file = "figures/theory-rate-by-discipline-relative.pdf", width = 9,
+    height = 9, pointsize = 10)
+
+p <- ggplot(subset(data.theory, year < 2014 & year > 1860),
+            aes(x = year, y = relative.keyword * 100,
+                color = unit, fill = unit))
+
+p1 <- p + geom_hline(yintercept = 0, color = "gray20") +
+    geom_jitter(size = 0.5,
+                alpha = 0.8) + geom_smooth(method = "loess") +
+    geom_text_repel(data = subset(data.theory, year == 2012),
+                    aes(x = year + 1, y = relative.keyword*100, label = unit),
+                    segment.color = NA, nudge_x = 30, size = 2.8) +
+    theme(legend.position = "right") +
+    labs(x = "Year", y = "Percentage Points Difference from Base Rate", fill = "Discipline",
+        color = "Discipline") + xlim(1860, 2020) + ylim(-50, 500) + guides(fill = FALSE, color = FALSE) +
+    ggtitle("Relative Incidents of 'Theory' Across the Disciplines, 1860-2013")
+
+## Turn off the clipping so the labels are legible
+gt <- ggplot_gtable(ggplot_build(p1))
+gt$layout$clip[gt$layout$name == "panel"] <- "off"
+grid.draw(gt)
+credit("")
+dev.off()
+
+
+pdf(file = "figures/theory-rate-by-discipline-relative-excl-psych.pdf", width = 9.5,
+    height = 6, pointsize = 10)
+
+## Get average rate at the tail end, for better label placement
+lab.df <- data.theory %>% filter(year > 2002 & unit %nin% "Psychology")
+lab.df <- lab.df %>% group_by(unit) %>% summarize(lab_pos = mean(relative.keyword*100))
+lab.df$year <- 2014
+
+p <- ggplot(subset(data.theory, year < 2014 & year > 1860 & unit %nin% "Psychology"),
+            aes(x = year, y = relative.keyword * 100,
+                color = unit, fill = unit))
+
+p1 <- p + geom_hline(yintercept = 0, color = "gray20") +
+    geom_jitter(size = 0.5,
+                alpha = 0.8) + geom_smooth(method = "loess") +
+    geom_text_repel(data = lab.df,
+                    aes(x = year + 0.2, y = lab_pos, label = unit),
+                    segment.color = NA, nudge_x = 30, size = 3) +
+    theme(legend.position = "right") +
+    labs(x = "Year", y = "Percentage Points Difference from Base Rate", fill = "Discipline",
+        color = "Discipline") + xlim(1860, 2020) + guides(fill = FALSE, color = FALSE) +
+    ggtitle("Relative Incidents of 'Theory' Across the Disciplines, 1860-2013")
+
+## Turn off the clipping so the labels are legible
+gt <- ggplot_gtable(ggplot_build(p1))
+gt$layout$clip[gt$layout$name == "panel"] <- "off"
+grid.draw(gt)
+credit("Kieran Healy. Data: JSTOR. Base rate is percent mentions across all research articles in the JSTOR corpus.")
 dev.off()
