@@ -175,8 +175,9 @@ make.keyword.df <- function(unit.names, full.names = NULL, new.labels = FALSE, k
 
     ## Calculate difference relative to the base rate
     data <- merge(data, data.total)
-    relative.keyword <- paste0("relative.", keyword)
-    data$relative.keyword <- data$rate - data$total.rate
+    data$tmp_rk <- data$rate - data$total.rate
+    nv <- colnames(data)[1:(ncol(data) - 1)]
+    colnames(data) <- c(nv, paste0("relative.", keyword))
 
     return(data)
 }
@@ -211,7 +212,7 @@ linelab.df <- data.frame(unit = c("Economics", "Psychology", "Philosophy", "Poli
 
 pdf(file = "figures/nuance-rate-by-discipline-relative.pdf", width = 9, height = 8.2,
     pointsize = 10)
-p <- ggplot(subset(data.fields, year < 2014 & year > 1860), aes(x = year, y = relative.keyword *
+p <- ggplot(subset(data.fields, year < 2014 & year > 1860), aes(x = year, y = relative.nuance *
     100, color = unit, fill = unit))
 
 p1 <- p + geom_hline(yintercept = 0, color = "gray70") + geom_point(size = 0.5) +
@@ -231,7 +232,7 @@ dev.off()
 
 pdf(file = "figures/nuance-rate-by-discipline-relative-SE-jit-gam.pdf", width = 9,
     height = 9, pointsize = 10)
-p <- ggplot(subset(data.fields, year < 2014 & year > 1860), aes(x = year, y = relative.keyword *
+p <- ggplot(subset(data.fields, year < 2014 & year > 1860), aes(x = year, y = relative.nuance *
     100, color = unit, fill = unit))
 
 p1 <- p + geom_hline(yintercept = 0, color = "gray20") + geom_jitter(size = 0.5,
@@ -257,7 +258,7 @@ data.journals <- make.keyword.df(unit.names = journals, full.names = jl.names, s
 
 pdf(file = "figures/nuance-rate-by-journal-relative-facet.pdf", width = 10, height = 5,
     pointsize = 10)
-p <- ggplot(subset(data.journals, year < 2014 & year > 1899), aes(x = year, y = relative.keyword *
+p <- ggplot(subset(data.journals, year < 2014 & year > 1899), aes(x = year, y = relative.nuance *
     100))
 
 p1 <- p + geom_hline(yintercept = 0, color = "gray20") + geom_point(size = 0.5, alpha = 0.5) +
@@ -282,7 +283,7 @@ data.socjournals <- make.keyword.df(soc.journals, full.names = soc.names, subdir
 
 pdf(file = "figures/nuance-rate-by-soc-journal-relative-facet.pdf", width = 9, height = 3,
     pointsize = 10)
-p <- ggplot(subset(data.socjournals, year < 2014 & year > 1949), aes(x = year, y = relative.keyword *
+p <- ggplot(subset(data.socjournals, year < 2014 & year > 1949), aes(x = year, y = relative.nuance *
     100))
 
 p1 <- p + geom_hline(yintercept = 0, color = "gray20") + geom_point(size = 0.5, alpha = 0.5) +
@@ -314,7 +315,7 @@ pdf(file = "figures/nuance-rate-by-allsoc-journal-relative-facet.pdf", width = 1
     height = 6, pointsize = 10)
 
 p <- ggplot(subset(data.allsocjournals, year < 2014 & year > 1959), aes(x = year,
-    y = relative.keyword * 100))
+    y = relative.nuance * 100))
 
 p1 <- p + geom_hline(yintercept = 0, color = "gray20") + geom_point(size = 0.5, alpha = 0.5) +
     geom_smooth(method = "gam", formula = y ~ ns(x, 3)) + ylim(-10, 30) + facet_wrap(~longlab,
@@ -343,7 +344,7 @@ data.socjournals <- make.keyword.df(soc.journals, keyword = "nuance", full.names
 
 pdf(file = "figures/nuance-rate-relative.pdf", width = 7, height = 7)
 
-p <- ggplot(subset(data.socjournals, year < 2013), aes(x = year, y = relative.keyword,
+p <- ggplot(subset(data.socjournals, year < 2013), aes(x = year, y = relative.nuance,
     color = longlab, fill = longlab, shape = longlab))
 
 p1 <- p + geom_jitter() + geom_smooth(se = FALSE) + scale_y_continuous(labels = scales::percent) +
@@ -445,14 +446,14 @@ pdf(file = "figures/theory-rate-by-discipline-relative.pdf", width = 9,
     height = 9, pointsize = 10)
 
 p <- ggplot(subset(data.theory, year < 2014 & year > 1860),
-            aes(x = year, y = relative.keyword * 100,
+            aes(x = year, y = relative.nuance * 100,
                 color = unit, fill = unit))
 
 p1 <- p + geom_hline(yintercept = 0, color = "gray20") +
     geom_jitter(size = 0.5,
                 alpha = 0.8) + geom_smooth(method = "loess") +
     geom_text_repel(data = subset(data.theory, year == 2012),
-                    aes(x = year + 1, y = relative.keyword*100, label = unit),
+                    aes(x = year + 1, y = relative.theory*100, label = unit),
                     segment.color = NA, nudge_x = 30, size = 2.8) +
     theme(legend.position = "right") +
     labs(x = "Year", y = "Percentage Points Difference from Base Rate", fill = "Discipline",
@@ -472,11 +473,11 @@ pdf(file = "figures/theory-rate-by-discipline-relative-excl-psych.pdf", width = 
 
 ## Get average rate at the tail end, for better label placement
 lab.df <- data.theory %>% filter(year > 2002 & unit %nin% "Psychology")
-lab.df <- lab.df %>% group_by(unit) %>% summarize(lab_pos = mean(relative.keyword*100))
+lab.df <- lab.df %>% group_by(unit) %>% summarize(lab_pos = mean(relative.theory*100))
 lab.df$year <- 2014
 
 p <- ggplot(subset(data.theory, year < 2014 & year > 1860 & unit %nin% "Psychology"),
-            aes(x = year, y = relative.keyword * 100,
+            aes(x = year, y = relative.theory * 100,
                 color = unit, fill = unit))
 
 p1 <- p + geom_hline(yintercept = 0, color = "gray20") +
@@ -491,10 +492,34 @@ p1 <- p + geom_hline(yintercept = 0, color = "gray20") +
     ggtitle("Relative Incidence of 'Theory' Across the Disciplines, 1860-2013")
 
 print(p1)
-
-## Turn off the clipping so the labels are legible
-## gt <- ggplot_gtable(ggplot_build(p1))
-## gt$layout$clip[gt$layout$name == "panel"] <- "off"
-## grid.draw(gt)
 credit("Base rate is percent mentions across all research articles in the JSTOR corpus.")
+dev.off()
+
+
+##
+pdf(file = "figures/theory-rate-by-discipline.pdf", width = 9,
+    height = 10, pointsize = 10)
+
+lab.df <- data.theory %>% filter(year > 2002)
+lab.df <- lab.df %>% group_by(unit) %>% summarize(lab_pos = mean(rate))
+lab.df$year <- 2014
+
+p <- ggplot(subset(data.theory, year < 2014 & year > 1899),
+            aes(x = year, y = rate,
+                color = unit, fill = unit))
+
+p1 <- p + geom_hline(yintercept = 0, color = "gray20") +
+    geom_jitter(size = 0.5,
+                alpha = 0.8) + geom_smooth(method = "loess") +
+    geom_text_repel(data = lab.df,
+                    aes(x = year + 0.2, y = lab_pos, label = unit),
+                    segment.color = NA, nudge_x = 30, size = 3) +
+    theme(legend.position = "right") +
+    labs(x = "Year", y = "Percent articles mentioning term", fill = "Discipline",
+         color = "Discipline") +
+    xlim(1900, 2020) +
+    guides(fill = FALSE, color = FALSE) +
+    ggtitle("Incidence rate of 'Theory' Across the Disciplines, 1900-2013")
+
+print(p1)
 dev.off()
